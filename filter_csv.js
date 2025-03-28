@@ -22,24 +22,23 @@ let isFirstRow = true;
 let total = 0;
 
 fs.createReadStream(inputFile)
-  .pipe(csv.parse({ headers: false, delimiter: '\t' })) // Adjust delimiter if needed
+  .pipe(csv.parse({ headers: false, delimiter: ',' })) // Adjust delimiter if needed
   .on('data', (row) => {
     if (isFirstRow) {
       isFirstRow = false; // Skip the first row
       return;
     }
-    const delimterRow = row[0].split(',');
-    
-    const searchField = delimterRow[2]; // Assuming the vendor name is in column 3 (index 2)
+        
+    const searchField = row[2]; // Assuming the vendor name is in column 3 (index 2)
     if (keywords.some(keyword => searchField.includes(keyword))) {
-      results.push(delimterRow);
-      total += Number(delimterRow[5])
+      results.push(row);
+      total += Number(row[5])
     }
   })
   .on('end', () => {
     // Write filtered results
     const ws = fs.createWriteStream(outputFile);
-    csv.write(results, { headers: false, delimiter: '\t' }).pipe(ws);
+    csv.write(results, { headers: false, delimiter: ',' }).pipe(ws);
     console.log(`Filtered CSV saved to ${outputFile}`);
     console.log(`Total amount spent: ${total}`)
   });
